@@ -1,0 +1,25 @@
+import gensim
+import pandas as pd
+import jieba
+import jieba.analyse
+from wordcloud import WordCloud
+
+df_news = pd.read_table('F:/test_data/val.txt', names=['category', 'theme', 'url', 'content'], encoding='utf-8')
+df_news = df_news.dropna()
+
+#使用结巴分词器
+content = df_news.content.values.tolist()
+#print(content[1000])
+content_s = []
+for line in content:
+    current_segment = jieba.lcut(line)
+    if len(current_segment) > 1 and current_segment != '\r\n':
+        content_s.append(current_segment)
+#print(content_s[1000])
+df_content = pd.DataFrame({'content_s': content_s})
+#print(df_content.head())
+
+index = 2000
+print(df_news['content'][index])
+content_s_str = ''.join(content_s[index])
+print('  '.join(jieba.analyse.extract_tags(content_s_str, topK=5, withWeight=False)))
