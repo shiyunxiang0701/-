@@ -1,0 +1,33 @@
+'''
+题目一
+对于一个由小写字母组成的字符串，比如 "adcbf"，另外给一个小写字母到大写字母的可替换字典，
+比如 {'a': ['B', 'C'], 'b': ['X']}，表示 'a' 可以替换为 'B' 或 'C'，'b' 可以替换为 'X'。
+请写一个程序打印出所有替换生成的字符串，在这个例子中，结果为：
+BdcXf
+CdcXf
+请用 python 实现如下函数：
+def generate(text : str, map : Dict[str, str]):
+pass
+'''
+
+def generate(strs, dicts):
+    lists = list(strs)
+    res = [lists]
+    flag = -1
+    for i in range(len(strs)):
+        if strs[i] in dicts:
+            flag *= len(dicts[strs[i]])
+            for j in range(len(res)):
+                for e in dicts[strs[i]]:
+                    temp = res[j].copy()
+                    temp[i] = e
+                    res.append(temp)
+            res = res[flag:]
+    for elem in res:
+        print(''.join(elem))
+
+
+strs = 'adcbf'
+dicts = {'a': ['B', 'C'], 'b': ['X']}
+
+generate(strs, dicts)
