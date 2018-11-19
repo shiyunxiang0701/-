@@ -1,0 +1,53 @@
+import numpy as np
+import pandas as pd
+import jieba
+from wordcloud import WordCloud
+
+df_news = pd.read_table('F:/test_data/val.txt', names=['category', 'theme', 'url', 'content'], encoding='utf-8')
+#去除空值记录
+df_news = df_news.dropna()
+#print(df_news.head())
+#print(df_news.shape)
+
+#使用结巴分词器
+content = df_news.content.values.tolist()
+#print(content[1000])
+content_s = []
+for line in content:
+    current_segment = jieba.lcut(line)
+    if len(current_segment) > 1 and current_segment != '\r\n':
+        content_s.append(current_segment)
+#print(content_s[1000])
+df_content = pd.DataFrame({'content_s': content_s})
+#print(df_content.head())
+
+#停用词
+stopwords = pd.read_table('F:/test_data/stopwords.txt', index_col=False, sep='\t', quoting=3, names=['stopword'], encoding='utf-8')
+#print(stopwords.head())
+
+def drop_stopwords(contents, stopwords):
+    contents_clean = []
+    all_words = []
+    for line in contents:
+        line_clean = []
+        for word in line:
+            if word in stopwords:
+                continue
+            line_clean.append(word)
+            all_words.append(str(word))
+        contents_clean.append(line_clean)
+    return contents_clean, all_words
+
+contents = df_content.content_s.values.tolist()
+stopwords = stopwords.stopword.values.tolist()
+contents_clean, all_words = drop_stopwords(contents, stopwords)
+
+df_content = pd.DataFrame({'contents_clean': contents_clean})
+print(df_content.head())
+
+df_all_words = pd.DataFrame({'all_words': all_words})
+print(df_all_words.head())
+
+word_count = df_all_words.groupby(by=['all_words'])['all_words'].agg({'count': np.size})
+word_count = word_count.reset_index().sort_values(by=['count'], ascending=False)
+print(word_count.head())
